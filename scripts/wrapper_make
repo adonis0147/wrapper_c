@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+WRAPPER_MAKE_RUNTIME_PATH="$(pwd)"
+declare -r WRAPPER_MAKE_RUNTIME_PATH
+export WRAPPER_MAKE_RUNTIME_PATH
+
+declare -r COMPILATION_DATABASE="compile_commands.json"
+declare -r TEMP_COMPILATION_DATABASE="${COMPILATION_DATABASE}.tmp"
+
+main() {
+	echo >"${TEMP_COMPILATION_DATABASE}"
+
+	# shellcheck disable=2064
+	trap "rm -f ${TEMP_COMPILATION_DATABASE}" EXIT
+
+	make "${@}"
+
+	echo -n '[' >"${COMPILATION_DATABASE}"
+	sed '$s/,$//' "${TEMP_COMPILATION_DATABASE}" >>"${COMPILATION_DATABASE}"
+	echo ']' >>"${COMPILATION_DATABASE}"
+}
+
+main "${@}"
