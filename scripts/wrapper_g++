@@ -1,4 +1,6 @@
 #!/bin/bash
 
-exec wrapper_c -- g++ "${@}"
+BIN_PATH="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+declare -r BIN_PATH
 
+exec "${BIN_PATH}/wrapper_c" -- g++ "${@}"

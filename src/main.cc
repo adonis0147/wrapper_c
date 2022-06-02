@@ -114,17 +114,18 @@ int ExecuteCommand(char **argv) {
 
 const char *ParseSourceFile(int argc, char **argv) {
   int num_arguments = argc;
-  std::unique_ptr<char *[]> arguments(new char *[num_arguments]);
+  std::unique_ptr<char *[]> arguments(new char *[num_arguments + 1]);
   for (int i = 0; i < num_arguments; ++i) {
     arguments[i] = argv[i];
   }
+  arguments[num_arguments] = nullptr;
 
   static struct option options[] = {
       {nullptr, 0, nullptr, 0},
   };
-  opterr = 0;
-  while (getopt_long(num_arguments, arguments.get(), "o:", options, nullptr) != -1)
-    ;
+  optind = 0;
+  while (getopt_long(num_arguments, arguments.get(), ":o:c", options, nullptr) != -1) {
+  }
   return (optind == num_arguments - 1) ? arguments[optind] : nullptr;
 }
 
