@@ -1,8 +1,20 @@
-project('wrapper_c', 'cpp', version : '0.1', default_options : ['cpp_std=c++20'])
+project('wrapper_c', 'cpp', version : 'v0.1')
 
 subdir('src')
 
-includes = include_directories('include')
-cflags = ['-g', '--std=c++20', '-Wall']
+build_type = get_option('buildtype')
 
-executable('wrapper_c', srcs, include_directories: includes, c_args: cflags)
+includes = include_directories('include')
+
+flags = ['-DVERSION="@0@"'.format(meson.project_version()), '-DBUILD_TYPE="@0@"'.format(build_type)]
+flags += ['-std=c++17', '-g']
+flags += ['-Wall', '-Wextra']
+
+link_flags = []
+
+if (build_type.startswith('debug'))
+    flags += ['-fsanitize=address']
+    link_flags += ['-fsanitize=address']
+endif
+
+executable('wrapper_c', srcs, include_directories: includes, cpp_args : flags, link_args: link_flags)

@@ -22,23 +22,21 @@ namespace {
 const char *ENV_RUNTIME_PATH = "WRAPPER_MAKE_RUNTIME_PATH";
 const char *COMPILATION_DATABASE = "compile_commands.json";
 
-void Help();
+int ParseArguments(int &argc, char **&argv);
+void Usage(const char *self);
+void Version(const char *self);
 int ExecuteCommand(char **argv);
 const char *ParseSourceFile(int argc, char **argv);
-rapidjson::Document GenerateJSON(int argc, char **argv,
-                                 const char *source_file);
-void WriteToFile(const std::string &filename,
-                 const rapidjson::Document &document);
+rapidjson::Document GenerateJSON(int argc, char **argv, const char *source_file);
+void WriteToFile(const std::string &filename, const rapidjson::Document &document);
 
 }  // namespace
 
 int main(int argc, char *argv[]) {
-  if (argc <= 1) {
-    Help();
-    return EXIT_FAILURE;
+  int status = ParseArguments(argc, argv);
+  if (status) {
+    return status;
   }
-  argc -= 1;
-  argv += 1;
 
   const char *runtime_path = getenv(ENV_RUNTIME_PATH);
   if (runtime_path != nullptr) {
@@ -60,7 +58,47 @@ int main(int argc, char *argv[]) {
 
 namespace {
 
-void Help() {}
+int ParseArguments(int &argc, char **&argv) {
+  if (argc <= 1) {
+    Usage(argv[0]);
+    return EXIT_FAILURE;
+  }
+  static struct option options[] = {
+      {"help", no_argument, nullptr, 'h'},
+      {"version", no_argument, nullptr, 'v'},
+      {nullptr, 0, nullptr, 0},
+  };
+  int opt;
+  while ((opt = getopt_long(argc, argv, "hv", options, nullptr)) != -1) {
+    switch (opt) {
+      case 'h':
+        Usage(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'v':
+        Version(argv[0]);
+        exit(EXIT_SUCCESS);
+      default:
+        Usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+  }
+  argc -= optind;
+  argv += optind;
+  return EXIT_SUCCESS;
+}
+
+void Usage(const char *self) {
+  std::cerr << "Usage: " << self << " [OPTION]... -- compiler" << std::endl << std::endl;
+  std::cerr << "OPTIONS" << std::endl;
+  std::cerr << "\t-h, --help\tHelp" << std::endl;
+  std::cerr << "\t-v, --version\tVersion" << std::endl;
+}
+
+void Version(const char *self) {
+  std::cerr << self << " " << VERSION << std::endl;
+  std::cerr << std::endl;
+  std::cerr << "Build type: " << BUILD_TYPE << std::endl;
+}
 
 int ExecuteCommand(char **argv) {
   const char *compiler = argv[0];
@@ -85,28 +123,24 @@ const char *ParseSourceFile(int argc, char **argv) {
       {nullptr, 0, nullptr, 0},
   };
   opterr = 0;
-  while (getopt_long(num_arguments, arguments.get(), "o:", options, nullptr) !=
-         -1)
+  while (getopt_long(num_arguments, arguments.get(), "o:", options, nullptr) != -1)
     ;
   return (optind == num_arguments - 1) ? arguments[optind] : nullptr;
 }
 
-rapidjson::Document GenerateJSON(int argc, char **argv,
-                                 const char *source_file) {
+rapidjson::Document GenerateJSON(int argc, char **argv, const char *source_file) {
   rapidjson::Document document;
   auto &object = document.SetObject();
 
   char directory[PATH_MAX];
   getcwd(directory, PATH_MAX);
-  object.AddMember(
-      "directory",
-      rapidjson::Value(rapidjson::kStringType)
-          .SetString(directory, strlen(directory), document.GetAllocator())
-          .Move(),
-      document.GetAllocator());
-
-  object.AddMember("file", rapidjson::StringRef(source_file),
+  object.AddMember("directory",
+                   rapidjson::Value(rapidjson::kStringType)
+                       .SetString(directory, strlen(directory), document.GetAllocator())
+                       .Move(),
                    document.GetAllocator());
+
+  object.AddMember("file", rapidjson::StringRef(source_file), document.GetAllocator());
 
   rapidjson::Value arguments(rapidjson::kArrayType);
   for (int i = 0; i < argc; ++i) {
@@ -116,8 +150,7 @@ rapidjson::Document GenerateJSON(int argc, char **argv,
   return document;
 }
 
-void WriteToFile(const std::string &filename,
-                 const rapidjson::Document &document) {
+void WriteToFile(const std::string &filename, const rapidjson::Document &document) {
   rapidjson::StringBuffer buffer;
   rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
   document.Accept(writer);

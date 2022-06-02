@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec wrapper_c -- gcc "${@}"
