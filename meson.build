@@ -25,3 +25,12 @@ executable(
     link_args: link_flags,
     install: true
 )
+
+install_data(
+    [
+      'scripts/wrapper_make',
+      'scripts/wrapper_gcc',
+      'scripts/wrapper_g++'
+    ],
+    install_dir: 'bin'
+)
