@@ -10,7 +10,7 @@ main() {
 import json
 with open('./compile_commands.json', 'r') as f:
     commands = json.load(f)
-assert len(commands) == 1
+assert len(commands) == 1, 'Wrong size'
 object = commands[0]
 assert object['file'] == 'test_case.c', 'Wrong file'
 assert object['arguments'] == ['gcc', 'test_case.c', '-o', 'test_case.o', '-c'], 'Wrong arguments'

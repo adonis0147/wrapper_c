@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include "wrapper/logger.h"
+
 namespace {
 
 const char *ENV_RUNTIME_PATH = "WRAPPER_MAKE_RUNTIME_PATH";
@@ -30,6 +32,8 @@ const char *ParseSourceFile(int argc, char **argv);
 rapidjson::Document GenerateJSON(int argc, char **argv, const char *source_file);
 void WriteToFile(const std::string &filename, const rapidjson::Document &document);
 
+bool g_no_exec = false;
+
 }  // namespace
 
 int main(int argc, char *argv[]) {
@@ -39,19 +43,27 @@ int main(int argc, char *argv[]) {
   }
 
   const char *runtime_path = getenv(ENV_RUNTIME_PATH);
+  LOG(INFO) << "Runtime path: " << (runtime_path ? runtime_path : "");
   if (runtime_path != nullptr) {
     std::ostringstream stream;
     stream << runtime_path << "/" << COMPILATION_DATABASE << ".tmp";
     std::string filename = stream.str();
     if (!std::filesystem::exists(filename)) {
+      LOG(ERROR) << filename << " doesn't exist.";
       return EXIT_FAILURE;
     }
 
     const auto *source_file = ParseSourceFile(argc, argv);
+    LOG(INFO) << "Source file: " << (source_file ? source_file : "");
     if (source_file != nullptr) {
       const auto &document = GenerateJSON(argc, argv, source_file);
       WriteToFile(filename, document);
     }
+  }
+
+  if (g_no_exec) {
+    LOG(INFO) << "No execution.";
+    return EXIT_SUCCESS;
   }
   return ExecuteCommand(argv);
 }
@@ -66,10 +78,12 @@ int ParseArguments(int &argc, char **&argv) {
   static struct option options[] = {
       {"help", no_argument, nullptr, 'h'},
       {"version", no_argument, nullptr, 'v'},
+      {"no_exec", no_argument, nullptr, 'n'},
+      {"debug", no_argument, nullptr, 'd'},
       {nullptr, 0, nullptr, 0},
   };
   int opt;
-  while ((opt = getopt_long(argc, argv, "hv", options, nullptr)) != -1) {
+  while ((opt = getopt_long(argc, argv, "hvnd", options, nullptr)) != -1) {
     switch (opt) {
       case 'h':
         Usage(argv[0]);
@@ -77,6 +91,12 @@ int ParseArguments(int &argc, char **&argv) {
       case 'v':
         Version(argv[0]);
         exit(EXIT_SUCCESS);
+      case 'n':
+        g_no_exec = true;
+        break;
+      case 'd':
+        SET_LOG_LEVEL(INFO);
+        break;
       default:
         Usage(argv[0]);
         return EXIT_FAILURE;
@@ -88,10 +108,13 @@ int ParseArguments(int &argc, char **&argv) {
 }
 
 void Usage(const char *self) {
-  std::cerr << "Usage: " << self << " [OPTION]... -- compiler" << std::endl << std::endl;
-  std::cerr << "OPTIONS" << std::endl;
+  std::cerr << "Usage: " << self << " [OPTION]... -- compiler" << std::endl;
+  std::cerr << std::endl;
+  std::cerr << "OPTION" << std::endl;
   std::cerr << "\t-h, --help\tHelp" << std::endl;
   std::cerr << "\t-v, --version\tVersion" << std::endl;
+  std::cerr << "\t-n, --no_exec\tDon't execute the command for the compiler." << std::endl;
+  std::cerr << "\t-d, --debug\tActivate the logging." << std::endl;
 }
 
 void Version(const char *self) {
@@ -118,15 +141,20 @@ const char *ParseSourceFile(int argc, char **argv) {
     should_not_link = (strcmp(argv[i], "-c") == 0);
   }
   if (!should_not_link) {
+    LOG(WARN) << "Skip parsing due to the command will link the objects.";
     return nullptr;
   }
 
+  std::ostringstream stream;
   int num_arguments = argc;
   std::unique_ptr<char *[]> arguments(new char *[num_arguments + 1]);
   for (int i = 0; i < num_arguments; ++i) {
     arguments[i] = argv[i];
+    stream << (i != 0 ? " " : "") << argv[i];
   }
   arguments[num_arguments] = nullptr;
+
+  LOG(INFO) << "Command: " << stream.str();
 
   optind = 1;
   while (getopt_long(num_arguments, arguments.get(), ":o:", nullptr, nullptr) != -1)
