@@ -7,7 +7,10 @@ build_type = get_option('buildtype')
 
 includes = include_directories('include')
 
-flags = ['-DVERSION="@0@"'.format(meson.project_version()), '-DBUILD_TYPE="@0@"'.format(build_type)]
+flags = [
+    '-DVERSION="@0@"'.format(meson.project_version()),
+    '-DBUILD_TYPE="@0@"'.format(build_type)
+]
 flags += ['-std=c++17', '-g']
 flags += ['-Wall', '-Wextra']
 
@@ -19,7 +22,8 @@ if (build_type.startswith('debug') and compiler == 'gcc')
 endif
 
 executable(
-    meson.project_name(), srcs,
+    meson.project_name(),
+    srcs,
     include_directories: includes,
     cpp_args : flags,
     link_args: link_flags,
@@ -28,9 +32,9 @@ executable(
 
 install_data(
     [
-      'scripts/wrapper_make',
-      'scripts/wrapper_gcc',
-      'scripts/wrapper_g++'
+        'scripts/wrapper_make',
+        'scripts/wrapper_gcc',
+        'scripts/wrapper_g++'
     ],
     install_dir: 'bin'
 )
