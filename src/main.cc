@@ -113,6 +113,14 @@ int ExecuteCommand(char **argv) {
 }
 
 const char *ParseSourceFile(int argc, char **argv) {
+  bool should_not_link = false;
+  for (int i = 0; i < argc && !should_not_link; ++i) {
+    should_not_link = (strcmp(argv[i], "-c") == 0);
+  }
+  if (!should_not_link) {
+    return nullptr;
+  }
+
   int num_arguments = argc;
   std::unique_ptr<char *[]> arguments(new char *[num_arguments + 1]);
   for (int i = 0; i < num_arguments; ++i) {
@@ -120,12 +128,9 @@ const char *ParseSourceFile(int argc, char **argv) {
   }
   arguments[num_arguments] = nullptr;
 
-  static struct option options[] = {
-      {nullptr, 0, nullptr, 0},
-  };
-  optind = 0;
-  while (getopt_long(num_arguments, arguments.get(), ":o:c", options, nullptr) != -1) {
-  }
+  optind = 1;
+  while (getopt_long(num_arguments, arguments.get(), ":o:", nullptr, nullptr) != -1)
+    ;
   return (optind == num_arguments - 1) ? arguments[optind] : nullptr;
 }
 
