@@ -1,0 +1,11 @@
+---
+Checks: |
+  -*,
+  clang-analyzer-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-avoid-c-arrays,
+  performance-*,
+  readability-*,
+  -readability-convert-member-functions-to-static,
+  -readability-else-after-return,

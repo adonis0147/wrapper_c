@@ -12,7 +12,7 @@ flags = [
     '-DBUILD_TYPE="@0@"'.format(build_type)
 ]
 flags += ['-std=c++17', '-g']
-flags += ['-Wall', '-Wextra']
+flags += ['-Werror', '-Wall', '-Wextra', '-Wpedantic']
 
 link_flags = []
 

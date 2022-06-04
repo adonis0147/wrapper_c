@@ -21,8 +21,8 @@
 
 namespace {
 
-const char *ENV_RUNTIME_PATH = "WRAPPER_MAKE_RUNTIME_PATH";
-const char *COMPILATION_DATABASE = "compile_commands.json";
+const char *const ENV_RUNTIME_PATH = "WRAPPER_MAKE_RUNTIME_PATH";
+const char *const COMPILATION_DATABASE = "compile_commands.json";
 
 int ParseArguments(int &argc, char **&argv);
 void Usage(const char *self);
@@ -38,12 +38,12 @@ bool g_no_exec = false;
 
 int main(int argc, char *argv[]) {
   int status = ParseArguments(argc, argv);
-  if (status) {
+  if (status != 0) {
     return status;
   }
 
   const char *runtime_path = getenv(ENV_RUNTIME_PATH);
-  LOG(INFO) << "Runtime path: " << (runtime_path ? runtime_path : "");
+  LOG(INFO) << "Runtime path: " << (runtime_path != nullptr ? runtime_path : "");
   if (runtime_path != nullptr) {
     std::ostringstream stream;
     stream << runtime_path << "/" << COMPILATION_DATABASE << ".tmp";
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     }
 
     const auto *source_file = ParseSourceFile(argc, argv);
-    LOG(INFO) << "Source file: " << (source_file ? source_file : "");
+    LOG(INFO) << "Source file: " << (source_file != nullptr ? source_file : "");
     if (source_file != nullptr) {
       const auto &document = GenerateJSON(argc, argv, source_file);
       WriteToFile(filename, document);
@@ -157,8 +157,8 @@ const char *ParseSourceFile(int argc, char **argv) {
   LOG(INFO) << "Command: " << stream.str();
 
   optind = 1;
-  while (getopt_long(num_arguments, arguments.get(), ":o:", nullptr, nullptr) != -1)
-    ;
+  while (getopt_long(num_arguments, arguments.get(), ":o:", nullptr, nullptr) != -1) {
+  }
   return (optind == num_arguments - 1) ? arguments[optind] : nullptr;
 }
 

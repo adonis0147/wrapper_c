@@ -20,7 +20,9 @@ class Logger {
   explicit Logger(LogLevel level) : Logger(std::cerr, level) {}
 
   Logger(std::ostream& ostream, LogLevel level) : ostream_(ostream), level_(level) {
-    if (!Enabled(level_)) return;
+    if (!Enabled(level_)) {
+      return;
+    }
     ostream_ << std::endl << Timestamp() << " [" << ToString(level) << "] ";
   }
 
@@ -36,16 +38,15 @@ class Logger {
   bool Enabled(LogLevel level) { return Logger::active && level >= Logger::level; }
 
   std::string Timestamp() {
-    time_t raw_time;
+    time_t raw_time = 0;
     time(&raw_time);
     struct tm* timeinfo = localtime(&raw_time);
 
-    char buffer[64];
+    char buffer[] = "YYYY-MM-DD HH:MM:SS";
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
     return buffer;
   }
 
- private:
   inline static bool active = false;
   inline static LogLevel level = LogLevel::INFO;
 

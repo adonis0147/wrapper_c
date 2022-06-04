@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 main() {
 	local bin_path="${1}"
 	make clean
