@@ -8,8 +8,8 @@ namespace wrapper {
 enum class LogLevel { INFO, WARN, ERROR };
 
 inline constexpr const char* ToString(LogLevel level) {
-  constexpr const char* literals[] = {"INFO", "WARN", "ERROR"};
-  return literals[static_cast<int>(level)];
+  constexpr const char* Literals[] = {"INFO", "WARN", "ERROR"};
+  return Literals[static_cast<int>(level)];
 }
 
 class Logger {
