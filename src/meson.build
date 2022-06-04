@@ -1,1 +1,3 @@
-srcs = ['src/main.cc']
+srcs = files(
+    'main.cc'
+)
