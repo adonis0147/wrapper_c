@@ -166,8 +166,8 @@ rapidjson::Document GenerateJSON(int argc, char **argv, const char *source_file)
   rapidjson::Document document;
   auto &object = document.SetObject();
 
-  char directory[PATH_MAX];
-  getcwd(directory, PATH_MAX);
+  char path[PATH_MAX];
+  const auto *directory = getcwd(path, PATH_MAX);
   object.AddMember("directory",
                    rapidjson::Value(rapidjson::kStringType)
                        .SetString(directory, strlen(directory), document.GetAllocator())
