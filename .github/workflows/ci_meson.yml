@@ -20,7 +20,8 @@ jobs:
       env:
         CC: gcc
     - run: ninja -C build
-    - run: bash test/test_all.sh
+    - run: bash test/test_all.sh debug
+    - run: bash test/test_all.sh release
 
   macos:
     runs-on: macos-12
@@ -38,4 +39,5 @@ jobs:
       env:
         CC: gcc
     - run: ninja -C build
-    - run: bash test/test_all.sh
+    - run: bash test/test_all.sh debug
+    - run: bash test/test_all.sh release

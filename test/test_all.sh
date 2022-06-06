@@ -17,9 +17,10 @@ declare -r DIST_PATH
 build() {
 	[[ -d "${BUILD_PATH}" ]] && rm -r "${BUILD_PATH}"
 	[[ -d "${DIST_PATH}" ]] && rm -r "${DIST_PATH}"
+	local build_type="${1:-debug}"
 
 	pushd "${PROJECT_ROOT_PATH}" >/dev/null
-	meson -Dprefix="${DIST_PATH}" "${BUILD_PATH}"
+	meson -Dprefix="${DIST_PATH}" --buildtype="${build_type}" "${BUILD_PATH}"
 	ninja install -C "${BUILD_PATH}"
 	popd >/dev/null
 }
@@ -32,7 +33,7 @@ run_case() {
 }
 
 main() {
-	build
+	build "${@}"
 	while read -r dir; do
 		echo -e "\033[34;3mRun ${dir}\033[0m"
 		run_case "${dir}"
