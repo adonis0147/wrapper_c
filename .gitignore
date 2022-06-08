@@ -5,4 +5,5 @@ build
 dist
 
 *.o
+*.d
 test_case
