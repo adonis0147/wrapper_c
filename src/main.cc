@@ -157,7 +157,7 @@ const char *ParseSourceFile(int argc, char **argv) {
   LOG(INFO) << "Command: " << stream.str();
 
   optind = 1;
-  while (getopt_long(num_arguments, arguments.get(), ":o:", nullptr, nullptr) != -1) {
+  while (getopt_long_only(num_arguments, arguments.get(), ":o:", nullptr, nullptr) != -1) {
   }
   return (optind == num_arguments - 1) ? arguments[optind] : nullptr;
 }
