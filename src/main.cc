@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <wrapper/logger.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -17,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "wrapper/logger.h"
+#include "macros.h"
 
 namespace {
 
@@ -120,7 +121,9 @@ void Usage(const char *self) {
 void Version(const char *self) {
   std::cerr << self << " " << VERSION << std::endl;
   std::cerr << std::endl;
-  std::cerr << "Build type: " << BUILD_TYPE << std::endl;
+  std::cerr << "Build type:    " << BUILD_TYPE << std::endl;
+  std::cerr << "Compiled time: " << COMPILED_TIME << std::endl;
+  std::cerr << "Commit:        " << COMMIT_ID << std::endl;
 }
 
 int ExecuteCommand(char **argv) {
