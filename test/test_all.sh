@@ -2,10 +2,10 @@
 
 set -e
 
-TEST_PATH="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+TEST_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 declare -r TEST_PATH
 
-PROJECT_ROOT_PATH="$(readlink -f "${TEST_PATH}/../")"
+PROJECT_ROOT_PATH="${TEST_PATH}/../"
 declare -r PROJECT_ROOT_PATH
 
 BUILD_PATH="${TEST_PATH}/build"

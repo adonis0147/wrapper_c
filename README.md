@@ -26,7 +26,6 @@ OPTION
 1. C++ compiler which supports C++ 17
 2. Meson
 3. Ninja
-4. greadlink (MacOS < 12.0)
 
 ```shell
 git clone https://github.com/adonis0147/wrapper_c
@@ -43,10 +42,8 @@ ninja install -C build
 
 ### MacOS
 
-For MacOS < 12.0, `greadlink` should be installed.
 ```shell
 brew install coreutils
-alias readlink="$(which greadlink)"
 ```
 
 Build from source.

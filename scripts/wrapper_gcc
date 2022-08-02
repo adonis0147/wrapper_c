@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BIN_PATH="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+BIN_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 declare -r BIN_PATH
 
 exec "${BIN_PATH}/wrapper_c" -- gcc "${@}"
