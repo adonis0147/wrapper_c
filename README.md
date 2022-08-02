@@ -33,20 +33,7 @@ cd wrapper_c
 git submodule update --init --progress
 ```
 
-### Linux
-
-```shell
-meson build --buildtype=release -Dprefix=/path/to/wrapper_c
-ninja install -C build
-```
-
-### MacOS
-
-```shell
-brew install coreutils
-```
-
-Build from source.
+### Build from Source
 
 ```shell
 meson build --buildtype=release -Dprefix=/path/to/wrapper_c
