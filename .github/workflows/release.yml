@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    # tags:
+    #   - '*'
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        config:
+          - name: Linux
+            os: ubuntu-latest
+            artifact_name: wrapper_c-linux-output
+          - name: macOS
+            os: macos-latest
+            artifact_name: wrapper_c-macos-output
+    runs-on: ${{ matrix.config.os }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          submodules: true
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - run: pip install meson ninja
+
+      - name: Build
+        run: |
+          kernel="$(uname -s | awk '{print tolower($0)}')"
+          arch="$(uname -m)"
+          meson --prefix="$(pwd)/wrapper_c-${kernel}-${arch}" --buildtype=release build
+          ninja -C build install
+
+          mkdir -p output
+          tar -zcvf "output/wrapper_c-${kernel}-${arch}.tgz" "wrapper_c-${kernel}-${arch}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.artifact_name }}
+          path: output
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: mkdir -p output
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wrapper_c-linux-output
+          path: output
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wrapper_c-macos-output
+          path: output
+
+      - run: |
+          ls -R .
