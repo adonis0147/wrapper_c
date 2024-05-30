@@ -34,9 +34,13 @@ flags += ['-Werror', '-Wall', '-Wextra', '-Wpedantic']
 
 link_flags = []
 
-if (build_type.startswith('debug') and compiler == 'gcc')
-    flags += ['-fsanitize=address', '-fno-omit-frame-pointer']
-    link_flags += ['-Wl,-Bstatic', '-lasan', '-Wl,-Bdynamic']
+if host_machine.system() == 'linux'
+    if build_type.startswith('debug')
+        flags += ['-fsanitize=address', '-fno-omit-frame-pointer']
+        link_flags += ['-Wl,-Bstatic', '-lasan', '-Wl,-Bdynamic']
+    elif build_type.startswith('release')
+        link_flags += ['-static']
+    endif
 endif
 
 executable(
